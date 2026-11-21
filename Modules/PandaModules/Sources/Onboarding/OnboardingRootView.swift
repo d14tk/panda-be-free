@@ -7,9 +7,13 @@ public struct OnboardingRootView: View {
     @State private var viewModel: OnboardingViewModel
 
     public init(
-        connectionTester: @escaping @MainActor (String, String, String, BambuPrinter?) async -> String? = { _, _, _, _ in nil }
+        connectionTester: @escaping @MainActor (String, String, String, BambuPrinter?) async -> String? = { _, _, _, _ in nil },
+        onPrinterSaved: @escaping @MainActor () -> Void = {}
     ) {
-        _viewModel = State(initialValue: OnboardingViewModel(connectionTester: connectionTester))
+        _viewModel = State(initialValue: OnboardingViewModel(
+            connectionTester: connectionTester,
+            onSaved: onPrinterSaved
+        ))
     }
 
     public var body: some View {

@@ -17,11 +17,15 @@ public final class OnboardingViewModel {
     public var needsNotificationStep = true
 
     public let connectionTester: @MainActor (String, String, String, BambuPrinter?) async -> String?
+    /// Called after the printer was saved, e.g. to close the "add printer" sheet.
+    public let onSaved: @MainActor () -> Void
 
     public init(
-        connectionTester: @escaping @MainActor (String, String, String, BambuPrinter?) async -> String? = { _, _, _, _ in nil }
+        connectionTester: @escaping @MainActor (String, String, String, BambuPrinter?) async -> String? = { _, _, _, _ in nil },
+        onSaved: @escaping @MainActor () -> Void = {}
     ) {
         self.connectionTester = connectionTester
+        self.onSaved = onSaved
     }
 
     public var serialRequired: Bool {
@@ -85,9 +89,12 @@ public final class OnboardingViewModel {
 
     public func saveCredentials() {
         appLog(.info, category: logCategory, "Saving credentials — model: \(selectedPrinter?.displayName ?? "unknown")")
-        SharedSettings.printerIP = ip.trimmingCharacters(in: .whitespaces)
-        SharedSettings.printerAccessCode = accessCode.trimmingCharacters(in: .whitespaces)
-        SharedSettings.printerSerial = serial.trimmingCharacters(in: .whitespaces)
-        SharedSettings.printerModel = selectedPrinter
+        SharedSettings.addPrinter(PrinterProfile(
+            ip: ip.trimmingCharacters(in: .whitespaces),
+            accessCode: accessCode.trimmingCharacters(in: .whitespaces),
+            serial: serial.trimmingCharacters(in: .whitespaces),
+            model: selectedPrinter
+        ))
+        onSaved()
     }
 }

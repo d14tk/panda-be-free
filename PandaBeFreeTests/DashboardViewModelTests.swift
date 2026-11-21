@@ -467,6 +467,7 @@ struct DashboardViewModelTests {
 
     @Test("clearConfigAndDisconnect disconnects and clears settings")
     func clearConfigAndDisconnect() {
+        SharedSettings.printerStore?.removeAll()
         SharedSettings.printerIP = "192.168.1.100"
         SharedSettings.printerAccessCode = "12345678"
         SharedSettings.printerSerial = "SERIAL"

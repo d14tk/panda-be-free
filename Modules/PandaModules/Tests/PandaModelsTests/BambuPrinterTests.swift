@@ -4,9 +4,9 @@ import Testing
 
 @Suite("Bambu Printer Model")
 struct BambuPrinterTests {
-    @Test("All 12 printer models exist")
+    @Test("All 13 printer models exist")
     func allModelsExist() {
-        #expect(BambuPrinter.allCases.count == 12)
+        #expect(BambuPrinter.allCases.count == 13)
     }
 
     @Test("Printer families contain correct models",
@@ -16,6 +16,7 @@ struct BambuPrinterTests {
               (PrinterFamily.p2, [BambuPrinter.p2s]),
               (PrinterFamily.a1, [BambuPrinter.a1, .a1Mini]),
               (PrinterFamily.h2, [BambuPrinter.h2c, .h2d, .h2dPro, .h2s]),
+              (PrinterFamily.h3, [BambuPrinter.h3c]),
           ])
     func familyModels(family: PrinterFamily, expected: [BambuPrinter]) {
         #expect(family.models == expected)
@@ -23,11 +24,11 @@ struct BambuPrinterTests {
 
     @Test("All families are covered")
     func allFamiliesCovered() {
-        #expect(PrinterFamily.allCases.count == 5)
+        #expect(PrinterFamily.allCases.count == 6)
     }
 
     @Test("RTSP camera protocol printers",
-          arguments: [BambuPrinter.x1, .x1c, .x1e, .p2s, .h2c, .h2d, .h2dPro, .h2s])
+          arguments: [BambuPrinter.x1, .x1c, .x1e, .p2s, .h2c, .h2d, .h2dPro, .h2s, .h3c])
     func rtspProtocol(printer: BambuPrinter) {
         #expect(printer.cameraProtocol == .rtsp)
     }
@@ -59,6 +60,7 @@ struct BambuPrinterTests {
               (BambuPrinter.h2d, true),
               (BambuPrinter.h2dPro, true),
               (BambuPrinter.h2s, true),
+              (BambuPrinter.h3c, true),
           ])
     func chamberTemp(printer: BambuPrinter, expected: Bool) {
         #expect(printer.hasChamberTemp == expected)
@@ -91,6 +93,7 @@ struct BambuPrinterTests {
               (BambuPrinter.h2d, true),
               (BambuPrinter.h2dPro, true),
               (BambuPrinter.h2s, false),
+              (BambuPrinter.h3c, false),
               (BambuPrinter.x1c, false),
               (BambuPrinter.a1, false),
           ])

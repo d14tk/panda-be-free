@@ -35,6 +35,8 @@ final class DashboardViewModel {
     let cameraManager = CameraStreamManager()
 
     var mqttConnectionState: MQTTConnectionState = .disconnected
+    /// Name of the printer the dashboard is connected to.
+    var activePrinterName = ""
     var showDisconnectConfirmation = false
     var showStopConfirmation = false
     var showPauseConfirmation = false
@@ -246,7 +248,8 @@ final class DashboardViewModel {
                 // Update Live Activity
                 if self.printerState.lastUpdated != nil {
                     let cs = self.printerState.contentState
-                    let printerName = SharedSettings.printerModel?.displayName ?? "3D Printer"
+                    let printerName = SharedSettings.selectedPrinter?.displayName
+                        ?? SharedSettings.printerModel?.displayName ?? "3D Printer"
                     let lam = self.liveActivityManager
                     Task {
                         await lam.startIfNeeded(contentState: cs, printerName: printerName)
@@ -279,6 +282,7 @@ final class DashboardViewModel {
     /// Connect MQTT and camera using config from SharedSettings. Awaits until MQTT reaches connected/error/timeout.
     func connectAll() async {
         let config = PrinterConfig.fromSharedSettings()
+        refreshPrinterName()
         appLog(.info, category: logCategory, "connectAll — model: \(config.printerModel?.displayName ?? "unknown"), IP: \(config.ip), camera: \(config.printerType)")
         // Set up stream consumers first so no events are missed
         startStreamsIfNeeded()
@@ -311,13 +315,39 @@ final class DashboardViewModel {
         lastScheduledStatus = nil
     }
 
-    /// Disconnect and clear all saved configuration, returning to onboarding.
+    /// Disconnect and remove the active printer. Connects to the next saved printer
+    /// if there is one, otherwise the app returns to onboarding.
     func clearConfigAndDisconnect() {
         disconnectAll()
-        SharedSettings.printerIP = ""
-        SharedSettings.printerAccessCode = ""
-        SharedSettings.printerSerial = ""
-        SharedSettings.printerModel = nil
+        if let id = SharedSettings.selectedPrinter?.id {
+            SharedSettings.removePrinter(id: id)
+        } else {
+            SharedSettings.printerIP = ""
+            SharedSettings.printerAccessCode = ""
+            SharedSettings.printerSerial = ""
+            SharedSettings.printerModel = nil
+        }
+        if SharedSettings.hasConfiguration {
+            Task { await reconnectToSelectedPrinter() }
+        }
+    }
+
+    /// Drop all state of the previous printer and connect to the currently selected one,
+    /// e.g. after switching or after a new printer was added.
+    func reconnectToSelectedPrinter() async {
+        appLog(.info, category: logCategory, "Reconnecting to selected printer")
+        disconnectAll()
+        await liveActivityManager.endAll()
+        printerState.reset()
+        chamberLightOn = false
+        selectedAirductMode = -1
+        WidgetCenter.shared.reloadAllTimelines()
+        await connectAll()
+    }
+
+    func refreshPrinterName() {
+        activePrinterName = SharedSettings.selectedPrinter?.displayName
+            ?? SharedSettings.printerModel?.displayName ?? ""
     }
 
     func disconnectCamera() {
