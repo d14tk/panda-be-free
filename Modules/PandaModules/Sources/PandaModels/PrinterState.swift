@@ -38,6 +38,34 @@ public final class PrinterState {
 
     public init() {}
 
+    /// Restore initial values, e.g. before connecting to a different printer.
+    public func reset() {
+        gcodeState = "UNKNOWN"
+        stgCur = -1
+        progress = 0
+        remainingMinutes = 0
+        jobName = ""
+        layerNum = 0
+        totalLayers = 0
+        nozzleTemp = 0
+        nozzleTargetTemp = 0
+        bedTemp = 0
+        bedTargetTemp = 0
+        chamberTemp = 0
+        partFanSpeed = 0
+        auxFanSpeed = 0
+        chamberFanSpeed = 0
+        heatbreakFanSpeed = 0
+        airductMode = -1
+        homeFlag = 0
+        chamberLightOn = false
+        amsUnits = []
+        activeTrayIndex = nil
+        pendingModuleVersions = []
+        isConnected = false
+        lastUpdated = nil
+    }
+
     /// Convert raw MQTT state to ContentState for reusing existing UI components.
     public var contentState: PrinterAttributes.ContentState {
         let (status, category) = PreparationStages.determineState(

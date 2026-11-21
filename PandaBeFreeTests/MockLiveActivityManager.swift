@@ -24,6 +24,12 @@ final class MockLiveActivityManager: LiveActivityManaging, @unchecked Sendable {
         endCalls.append(contentState)
     }
 
+    private(set) var endAllCount = 0
+
+    func endAll() async {
+        endAllCount += 1
+    }
+
     func reset() {
         startCalls.removeAll()
         updateCalls.removeAll()

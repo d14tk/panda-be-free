@@ -7,6 +7,7 @@ import SFSafeSymbols
 import SwiftUI
 
 enum RootTab: Hashable {
+    case printers
     case dashboard
     case control
     case more
@@ -21,7 +22,7 @@ struct PandaBeFreeApp: App {
     private var printerIP = ""
     @AppStorage("printerAccessCode", store: UserDefaults(suiteName: SharedSettings.suiteName))
     private var accessCode = ""
-    @State private var selectedTab: RootTab = .dashboard
+    @State private var selectedTab: RootTab = SharedSettings.printers.count > 1 ? .printers : .dashboard
     @State private var dashboardViewModel = DashboardViewModel()
 
     private var hasConfig: Bool {
@@ -30,12 +31,16 @@ struct PandaBeFreeApp: App {
 
     init() {
         SharedSettings.migrateFromStandardDefaults()
+        SharedSettings.migrateToPrinterList()
     }
 
     var body: some Scene {
         WindowGroup {
             if hasConfig {
                 TabView(selection: $selectedTab) {
+                    Tab("Printers", systemImage: SFSymbol.squareGrid2x2Fill.rawValue, value: RootTab.printers) {
+                        PrintersView(dashboardViewModel: dashboardViewModel, selectedTab: $selectedTab)
+                    }
                     Tab("Dashboard", systemImage: SFSymbol.printerFill.rawValue, value: RootTab.dashboard) {
                         DashboardView(viewModel: dashboardViewModel)
                     }

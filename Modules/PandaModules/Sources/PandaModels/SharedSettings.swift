@@ -73,6 +73,50 @@ public enum SharedSettings {
         !printerIP.isEmpty && !printerAccessCode.isEmpty
     }
 
+    // MARK: - Multiple Printers
+
+    public static var printerStore: PrinterStore? {
+        sharedDefaults.map(PrinterStore.init(defaults:))
+    }
+
+    public static var printers: [PrinterProfile] {
+        printerStore?.printers ?? []
+    }
+
+    public static var selectedPrinter: PrinterProfile? {
+        printerStore?.selected
+    }
+
+    /// Creates the printer list from the single-printer configuration of older installs.
+    public static func migrateToPrinterList() {
+        printerStore?.migrateLegacyConfiguration()
+    }
+
+    /// Adds a printer and makes it the active one.
+    public static func addPrinter(_ profile: PrinterProfile) {
+        if printerStore?.add(profile) == true { clearCachedPrinterData() }
+    }
+
+    /// Makes the printer the active one for dashboard, widgets and Live Activity.
+    public static func selectPrinter(id: UUID) {
+        if printerStore?.select(id: id) == true { clearCachedPrinterData() }
+    }
+
+    public static func updatePrinter(_ profile: PrinterProfile) {
+        printerStore?.update(profile)
+    }
+
+    public static func removePrinter(id: UUID) {
+        if printerStore?.remove(id: id) == true { clearCachedPrinterData() }
+    }
+
+    /// Cached state and camera image belong to the previously active printer.
+    private static func clearCachedPrinterData() {
+        cachedPrinterState = nil
+        cachedSnapshotData = nil
+        cachedSnapshotDate = nil
+    }
+
     // MARK: - Cached Snapshot
 
     private static var containerURL: URL? {

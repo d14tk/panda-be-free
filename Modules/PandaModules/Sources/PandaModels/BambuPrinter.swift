@@ -8,6 +8,7 @@ public enum PrinterFamily: String, CaseIterable, Identifiable, Sendable {
     case p2
     case a1
     case h2
+    case h3
 
     public var id: String {
         rawValue
@@ -20,6 +21,7 @@ public enum PrinterFamily: String, CaseIterable, Identifiable, Sendable {
         case .p2: "P2 Series"
         case .a1: "A1 Series"
         case .h2: "H2 Series"
+        case .h3: "H3 Series"
         }
     }
 
@@ -43,6 +45,7 @@ public enum BambuPrinter: String, CaseIterable, Identifiable, Codable, Sendable 
     case h2d
     case h2dPro
     case h2s
+    case h3c
 
     public var id: String {
         rawValue
@@ -55,6 +58,7 @@ public enum BambuPrinter: String, CaseIterable, Identifiable, Codable, Sendable 
         case .p2s: .p2
         case .a1, .a1Mini: .a1
         case .h2c, .h2d, .h2dPro, .h2s: .h2
+        case .h3c: .h3
         }
     }
 
@@ -72,12 +76,13 @@ public enum BambuPrinter: String, CaseIterable, Identifiable, Codable, Sendable 
         case .h2d: "H2D"
         case .h2dPro: "H2D Pro"
         case .h2s: "H2S"
+        case .h3c: "H3C"
         }
     }
 
     public var cameraProtocol: PrinterType {
         switch self {
-        case .x1, .x1c, .x1e, .p2s, .h2c, .h2d, .h2dPro, .h2s:
+        case .x1, .x1c, .x1e, .p2s, .h2c, .h2d, .h2dPro, .h2s, .h3c:
             .rtsp
         case .p1p, .p1s, .a1, .a1Mini:
             .tcp
@@ -93,7 +98,7 @@ public enum BambuPrinter: String, CaseIterable, Identifiable, Codable, Sendable 
 
     public var hasChamberTemp: Bool {
         switch self {
-        case .x1, .x1c, .x1e, .p2s, .h2c, .h2d, .h2dPro, .h2s:
+        case .x1, .x1c, .x1e, .p2s, .h2c, .h2d, .h2dPro, .h2s, .h3c:
             true
         case .p1p, .p1s, .a1, .a1Mini:
             false

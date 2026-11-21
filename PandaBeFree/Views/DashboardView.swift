@@ -19,7 +19,7 @@ struct DashboardView: View {
     var body: some View {
         ManagedNavigationStack {
             dashboardContent
-                .navigationTitle("Dashboard")
+                .navigationTitle(viewModel.activePrinterName.isEmpty ? String(localized: "Dashboard") : viewModel.activePrinterName)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button("Disconnect") {
@@ -34,7 +34,7 @@ struct DashboardView: View {
                             }
                             Button("Cancel", role: .cancel) {}
                         } message: {
-                            Text("This will disconnect from the printer and return to the setup screen.")
+                            Text("This removes the printer from the app. If other printers are saved, the dashboard switches to the next one; otherwise you return to the setup screen.")
                         }
                     }
                 }

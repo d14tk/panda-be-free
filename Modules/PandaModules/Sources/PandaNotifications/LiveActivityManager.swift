@@ -7,6 +7,8 @@ public protocol LiveActivityManaging: Sendable {
     func startIfNeeded(contentState: PrinterAttributes.ContentState, printerName: String) async
     func update(contentState: PrinterAttributes.ContentState) async
     func endIfNeeded(contentState: PrinterAttributes.ContentState) async
+    /// End all activities immediately, e.g. when switching to another printer.
+    func endAll() async
     var isActivityActive: Bool { get }
 }
 
@@ -129,6 +131,15 @@ public final class LiveActivityManager: LiveActivityManaging, @unchecked Sendabl
             await activity.end(content, dismissalPolicy: dismissalPolicy)
         }
 
+        lastSentProgress = nil
+        lastSentStatus = nil
+        lastSentRemainingMinutes = nil
+    }
+
+    public func endAll() async {
+        for activity in Activity<PrinterAttributes>.activities {
+            await activity.end(nil, dismissalPolicy: .immediate)
+        }
         lastSentProgress = nil
         lastSentStatus = nil
         lastSentRemainingMinutes = nil
